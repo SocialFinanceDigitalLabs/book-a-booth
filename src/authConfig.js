@@ -14,8 +14,8 @@ const isFirefox = firefox > 0; // Only needed if you need to support the redirec
 // Config object to be passed to Msal on creation
 export const msalConfig = {
     auth: {
-        clientId: "3fba556e-5d4a-48e3-8e1a-fd57c12cb82e",
-        authority: "https://login.windows-ppe.net/common",
+        clientId: "36bc0775-9527-484c-9c48-2e846090732b",
+        authority: "https://login.microsoftonline.com/9c85420c-07ed-40e7-9c4c-4207556dc906",
         redirectUri: "/",
         postLogoutRedirectUri: "/"
     },
@@ -52,10 +52,11 @@ export const msalConfig = {
 
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest = {
-    scopes: ["User.Read"]
+    scopes: ["User.Read", "Calendars.Read"]
 };
 
 // Add here the endpoints for MS Graph API services you would like to use.
 export const graphConfig = {
-    graphMeEndpoint: "https://graph.microsoft-ppe.com/v1.0/me"
+    apiBase: "https://graph.microsoft.com/v1.0",
+    graphMeEndpoint: "https://graph.microsoft.com/v1.0/me"
 };

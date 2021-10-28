@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 
 // Msal imports
 import { MsalAuthenticationTemplate, useMsal } from "@azure/msal-react";
@@ -17,20 +17,29 @@ import Paper from "@material-ui/core/Paper";
 const ProfileContent = () => {
     const { instance, inProgress } = useMsal();
     const [graphData, setGraphData] = useState(null);
+    const [calendarData, setCalendarData] = useState(null);
+
+    const loginErrorHandler = useCallback(e => {
+        if (e instanceof InteractionRequiredAuthError) {
+            instance.acquireTokenRedirect({
+                ...loginRequest,
+                account: instance.getActiveAccount()
+            });
+        }
+    }, [instance]);
 
     useEffect(() => {
         if (!graphData && inProgress === InteractionStatus.None) {
-            callMsGraph().then(response => setGraphData(response)).catch((e) => {
-                if (e instanceof InteractionRequiredAuthError) {
-                    instance.acquireTokenRedirect({
-                        ...loginRequest,
-                        account: instance.getActiveAccount()
-                    });
-                }
-            });
+            callMsGraph("/me").then(response => setGraphData(response)).catch(loginErrorHandler);
         }
-    }, [inProgress, graphData, instance]);
-  
+    }, [inProgress, graphData, instance, loginErrorHandler]);
+
+    useEffect(() => {
+        if (!calendarData && inProgress === InteractionStatus.None) {
+            callMsGraph("/me/calendar").then(response => setCalendarData(response)).catch(loginErrorHandler);
+        }
+    }, [inProgress, calendarData, instance, loginErrorHandler]);
+
     return (
         <Paper>
             { graphData ? <ProfileData graphData={graphData} /> : null }

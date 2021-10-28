@@ -1,7 +1,7 @@
 import { loginRequest, graphConfig } from "../authConfig";
 import { msalInstance } from "../index";
 
-export async function callMsGraph() {
+export async function callMsGraph(url) {
     const account = msalInstance.getActiveAccount();
     if (!account) {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
@@ -22,7 +22,7 @@ export async function callMsGraph() {
         headers: headers
     };
 
-    return fetch(graphConfig.graphMeEndpoint, options)
+    return fetch(`${graphConfig.apiBase}${url}`, options)
         .then(response => response.json())
         .catch(error => console.log(error));
 }
