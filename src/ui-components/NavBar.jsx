@@ -1,7 +1,4 @@
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Link from "@material-ui/core/Link";
-import Typography from "@material-ui/core/Typography";
+import {AppBar, Toolbar, Link, Typography} from "@mui/material";
 import WelcomeName from "./WelcomeName";
 import SignInSignOutButton from "./SignInSignOutButton";
 import useStyles from "../styles/useStyles";
