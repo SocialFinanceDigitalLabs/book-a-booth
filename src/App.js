@@ -6,11 +6,10 @@ import Grid from "@mui/material/Grid";
 import { MsalProvider } from "@azure/msal-react";
 import { CustomNavigationClient } from "./utils/NavigationClient";
 
-// Sample app imports
 import { PageLayout } from "./ui-components/PageLayout";
 import { Home } from "./pages/Home";
-import { Profile } from "./pages/Profile";
 import { Logout } from "./pages/Logout";
+import {Calendar} from "./pages/Calendar";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -33,7 +32,7 @@ function Pages() {
   return (
     <Switch>
       <Route path="/profile">
-        <Profile />
+        <Calendar />
       </Route>
       <Route path="/logout">
           <Logout />

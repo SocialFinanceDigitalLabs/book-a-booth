@@ -1,5 +1,6 @@
 import { loginRequest, graphConfig } from "../authConfig";
 import { msalInstance } from "../index";
+import {InteractionRequiredAuthError} from "@azure/msal-browser";
 
 export async function callMsGraph(url, opts) {
     const account = msalInstance.getActiveAccount();
@@ -22,9 +23,21 @@ export async function callMsGraph(url, opts) {
         headers: headers,
     };
 
-    console.log("REQUEST", url, options)
+    const errorHandler = MSALErrorHandler(msalInstance);
 
     return fetch(`${graphConfig.apiBase}${url}`, options)
         .then(response => response.json())
-        .catch(error => console.log(error));
+        .catch(errorHandler);
 }
+
+export const MSALErrorHandler = instance => e => {
+    if (e instanceof InteractionRequiredAuthError) {
+        instance.acquireTokenRedirect({
+            ...loginRequest,
+            account: instance.getActiveAccount()
+        });
+    } else {
+        console.error(e)
+    }
+}
+

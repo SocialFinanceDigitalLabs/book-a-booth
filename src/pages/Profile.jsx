@@ -1,43 +1,31 @@
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 
 // Msal imports
 import { MsalAuthenticationTemplate, useMsal } from "@azure/msal-react";
-import { InteractionStatus, InteractionType, InteractionRequiredAuthError } from "@azure/msal-browser";
+import { InteractionStatus, InteractionType } from "@azure/msal-browser";
 import { loginRequest } from "../authConfig";
 
 // Sample app imports
 import { ProfileData } from "../ui-components/ProfileData";
 import { Loading } from "../ui-components/Loading";
 import { ErrorComponent } from "../ui-components/ErrorComponent";
-import { callMsGraph } from "../utils/MsGraphApiCall";
+import {callMsGraph, useMSALErrorHandler} from "../utils/MsGraphApiCall";
 
 // Material-ui imports
 import Paper from "@mui/material/Paper";
-import {useZoomAvailability} from "../utils/BoothAvailabilityApiCall";
 
 const ProfileContent = () => {
     const { instance, inProgress } = useMsal();
     const [graphData, setGraphData] = useState(null);
-    const loginErrorHandler = useCallback(e => {
-        if (e instanceof InteractionRequiredAuthError) {
-            instance.acquireTokenRedirect({
-                ...loginRequest,
-                account: instance.getActiveAccount()
-            });
-        } else {
-            console.error(e)
-        }
-    }, [instance]);
-    const calendarData = useZoomAvailability("", loginErrorHandler)
+    const errorHandler = useMSALErrorHandler(instance);
 
-
-    console.log("Profile", graphData, calendarData, inProgress)
+    console.log("Profile", graphData, inProgress)
 
     useEffect(() => {
         if (!graphData && inProgress === InteractionStatus.None) {
-            callMsGraph("/me").then(response => setGraphData(response)).catch(loginErrorHandler);
+            callMsGraph("/me").then(response => setGraphData(response)).catch(errorHandler);
         }
-    }, [inProgress, graphData, instance, loginErrorHandler]);
+    }, [inProgress, graphData, instance, errorHandler]);
 
 
     return (
