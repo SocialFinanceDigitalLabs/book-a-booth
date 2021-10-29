@@ -13,20 +13,25 @@ import { callMsGraph } from "../utils/MsGraphApiCall";
 
 // Material-ui imports
 import Paper from "@mui/material/Paper";
+import {useZoomAvailability} from "../utils/BoothAvailabilityApiCall";
 
 const ProfileContent = () => {
     const { instance, inProgress } = useMsal();
     const [graphData, setGraphData] = useState(null);
-    const [calendarData, setCalendarData] = useState(null);
-
     const loginErrorHandler = useCallback(e => {
         if (e instanceof InteractionRequiredAuthError) {
             instance.acquireTokenRedirect({
                 ...loginRequest,
                 account: instance.getActiveAccount()
             });
+        } else {
+            console.error(e)
         }
     }, [instance]);
+    const calendarData = useZoomAvailability("", loginErrorHandler)
+
+
+    console.log("Profile", graphData, calendarData, inProgress)
 
     useEffect(() => {
         if (!graphData && inProgress === InteractionStatus.None) {
@@ -34,11 +39,6 @@ const ProfileContent = () => {
         }
     }, [inProgress, graphData, instance, loginErrorHandler]);
 
-    useEffect(() => {
-        if (!calendarData && inProgress === InteractionStatus.None) {
-            callMsGraph("/me/calendar").then(response => setCalendarData(response)).catch(loginErrorHandler);
-        }
-    }, [inProgress, calendarData, instance, loginErrorHandler]);
 
     return (
         <Paper>
