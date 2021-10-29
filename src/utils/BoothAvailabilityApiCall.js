@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 
 const timeFormat = "YYYY-MM-DDTHH:mm:ss";
 const timeZone = "Europe/London";
-const zoomBooths = [1,2,3,4,5,6].map(n => `zoombooth${n}@socialfinance.org.uk`);
+const zoomBooths = [1, 2, 3].map(n => `zoombooth${n}@socialfinance.org.uk`);
 const interval = 30;
 const scheduleStart = 8, scheduleEnd = 18;
 

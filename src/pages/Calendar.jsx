@@ -12,7 +12,7 @@ import {useZoomAvailability} from "../utils/BoothAvailabilityApiCall";
 import CalendarData from "../ui-components/calendar/CalendarData";
 
 const CalendarContent = () => {
-    const calendarData = useZoomAvailability({days: 5})
+    const calendarData = useZoomAvailability({start: "2021-10-27", days: 5})
     console.log("Calendar", calendarData)
 
     return (
