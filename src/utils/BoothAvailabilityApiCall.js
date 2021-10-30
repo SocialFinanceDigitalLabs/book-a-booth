@@ -82,3 +82,41 @@ export const useZoomAvailability = ({start, days}) => {
 
     return calendarData;
 }
+
+export const useBoothApi = () => {
+    const { instance, inProgress } = useMsal();
+    const [api, setApi] = useState({});
+
+    useEffect(() => {
+        setApi({
+            bookBooth: async group => {
+                const headers = new Headers();
+                headers.append("Content-Type", "application/json");
+                const result = await callMsGraph("/me/calendar/events", {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        subject: "Booth Booking",
+                        start: {
+                            dateTime: group.start.format(timeFormat),
+                            timeZone: timeZone
+                        },
+                        end: {
+                            dateTime: group.end.add(interval, "minutes").format(timeFormat),
+                            timeZone: timeZone
+                        },
+                        attendees: [
+                            {
+                                emailAddress: {
+                                    address: "zoombooth1@socialfinance.org.uk"
+                                }
+                            }
+                        ]
+                    }),
+                })
+                return result;
+            }
+        })
+    }, [instance, inProgress]);
+    return api
+}
