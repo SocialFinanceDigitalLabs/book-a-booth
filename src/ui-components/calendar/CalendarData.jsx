@@ -10,16 +10,16 @@ import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDiss
 import SentimentNeutralIcon from '@mui/icons-material/SentimentNeutral';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import Button from "@mui/material/Button";
-import {useBoothApi} from "../../utils/BoothAvailabilityApiCall";
+import {bookBooth, zoomBooths} from "../../utils/CalendarService";
+
+const availableColors = [
+    "#EF9A9A",
+    "#FFCC80",
+    "#FFF59D",
+]
 
 const getAvailableIcon = available => {
-    const colors = [
-        "#EF9A9A",
-        "#FFCC80",
-        "#FFF59D",
-    ]
-    const color = available >= colors.length ? "#A5D6A7" : colors[available];
-
+    const color = available >= availableColors.length ? "#A5D6A7" : availableColors[available];
     if (available === 0) {
         return [color, SentimentVeryDissatisfiedIcon];
     } else if (available <= 2) {
@@ -31,10 +31,10 @@ const getAvailableIcon = available => {
 
 
 
-const CalendarData = ({calendarData}) => {
+const CalendarData = ({calendarService}) => {
     const [selected, setSelected] = useState([]);
     const [groups, setGroups] = useState([])
-    const { bookBooth } = useBoothApi();
+    const {dates, boothData, refresh} = calendarService;
 
     const selectCell = useCallback(cellIndex => {
         const arrayIndex = selected.indexOf(cellIndex);
@@ -59,21 +59,27 @@ const CalendarData = ({calendarData}) => {
             return pv;
         }, []).map((arr, ix) => {
             return {
-                start: calendarData.intervals[arr[0]],
-                end: calendarData.intervals[arr[arr.length-1]],
+                start: dates.intervals[arr[0]],
+                end: dates.intervals[arr[arr.length-1]],
                 cells: arr,
             }
         });
 
         setSelected(newArray);
         setGroups(groups);
-    }, [selected, calendarData]);
+    }, [selected, dates]);
 
-    const selectGroup = useCallback(g => {
-        bookBooth(g).then((result) =>
-            console.log("Booth booked", result)
-        )
-    }, [bookBooth]);
+
+    const bookBoothClick = useCallback(g => {
+        bookBooth(zoomBooths[0], g.start, g.end).then((result) => {
+            refresh();
+            setSelected(selected.filter(x => !g.cells.includes(x)));
+        })
+    }, [refresh, selected]);
+
+    if (!boothData) {
+        return [];
+    }
 
     return (
         <>
@@ -82,13 +88,13 @@ const CalendarData = ({calendarData}) => {
                 <TableHead>
                     <TableRow>
                         <TableCell>Time</TableCell>
-                        {calendarData.dates.map(d =>
+                        {dates.dates.map(d =>
                             <TableCell key={d} align="center">{d.format("ddd, D MMM")}</TableCell>
                         )}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {calendarData.datesIndexes[0].map(rowIndex => {
+                    {dates.datesIndexes[0].map((slots, rowIndex) => {
                         const borderBottom = rowIndex % 2 === 0 ? 0 : '1px solid #eee';
                         return (
                             <TableRow
@@ -100,15 +106,15 @@ const CalendarData = ({calendarData}) => {
                                 }}
                             >
                                 <TableCell component="th" scope="row">
-                                    {calendarData.intervals[rowIndex].format("HH:mm")}
+                                    {dates.intervals[slots].format("HH:mm")}
                                 </TableCell>
-                                {calendarData.datesIndexes.map(dates => {
-                                    const cellIndex = dates[rowIndex]
-                                    const available = calendarData.available[cellIndex];
+                                {dates.datesIndexes.map((dateIndexes, dix) => {
+                                    const cellIndex = dateIndexes[rowIndex]
+                                    const available = boothData.available[cellIndex];
                                     const [color, Icon] = getAvailableIcon(available);
                                     const backgroundColor = selected.indexOf(cellIndex) < 0 ? color : '#ccc';
                                     return (
-                                        <TableCell key={dates} sx={{backgroundColor}}
+                                        <TableCell key={dix} sx={{backgroundColor}}
                                                    onClick={() => selectCell(cellIndex)}
                                                    align="center"><Icon /></TableCell>
                                     )
@@ -120,7 +126,7 @@ const CalendarData = ({calendarData}) => {
             </Table>
         </TableContainer>
         {groups && groups.map((g, ix) =>
-            <Paper key={ix}><Button onClick={() => selectGroup(g)}>Book</Button></Paper>
+            <Paper key={ix}><Button onClick={() => bookBoothClick(g)}>Book</Button></Paper>
         )}
         </>
     )};

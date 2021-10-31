@@ -7,7 +7,6 @@ import { MsalProvider } from "@azure/msal-react";
 import { CustomNavigationClient } from "./utils/NavigationClient";
 
 import { PageLayout } from "./ui-components/PageLayout";
-import { Home } from "./pages/Home";
 import { Logout } from "./pages/Logout";
 import {Calendar} from "./pages/Calendar";
 
@@ -31,14 +30,11 @@ function App({ pca }) {
 function Pages() {
   return (
     <Switch>
-      <Route path="/profile">
-        <Calendar />
-      </Route>
       <Route path="/logout">
           <Logout />
       </Route>
       <Route path="/">
-        <Home />
+          <Calendar />
       </Route>
     </Switch>
   )

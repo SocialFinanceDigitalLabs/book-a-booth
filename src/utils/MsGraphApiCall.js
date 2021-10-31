@@ -2,7 +2,19 @@ import { loginRequest, graphConfig } from "../authConfig";
 import { msalInstance } from "../index";
 import {InteractionRequiredAuthError} from "@azure/msal-browser";
 
-export async function callMsGraph(url, opts) {
+export const callMsGraphIter = async (url, opts) => {
+    let result = await callMsGraph(url, opts);
+    result = await result.json()
+    const values = result.value
+    while (result['@odata.nextLink']) {
+        result = await callMsGraph(result['@odata.nextLink']);
+        result = await result.json()
+        values.push(...result.value)
+    }
+    return values;
+}
+
+export const callMsGraph = async (url, opts) => {
     const account = msalInstance.getActiveAccount();
     if (!account) {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
@@ -13,7 +25,7 @@ export async function callMsGraph(url, opts) {
         account: account
     });
 
-    const headers = opts?.headers || new Headers();
+    const headers = new Headers(opts?.headers);
     const bearer = `Bearer ${response.accessToken}`;
     headers.append("Authorization", bearer);
 
@@ -23,11 +35,10 @@ export async function callMsGraph(url, opts) {
         headers: headers,
     };
 
-    const errorHandler = MSALErrorHandler(msalInstance);
+    const fetchUrl = url.startsWith("http") ? url : `${graphConfig.apiBase}${url}`;
 
-    return fetch(`${graphConfig.apiBase}${url}`, options)
-        .then(response => response.json())
-        .catch(errorHandler);
+    return fetch(fetchUrl, options)
+        .catch(MSALErrorHandler(msalInstance));
 }
 
 export const MSALErrorHandler = instance => e => {
@@ -37,7 +48,7 @@ export const MSALErrorHandler = instance => e => {
             account: instance.getActiveAccount()
         });
     } else {
-        console.error(e)
+        throw e;
     }
 }
 

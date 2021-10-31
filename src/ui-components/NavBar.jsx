@@ -12,7 +12,7 @@ const NavBar = () => {
             <AppBar position="static">
             <Toolbar>
                 <Typography className={classes.title}>
-                    <Link component={RouterLink} to="/" color="inherit" variant="h6">MS Identity Platform</Link>
+                    <Link component={RouterLink} to="/" color="inherit" variant="h6">SF Booth Booking</Link>
                 </Typography>
                 <WelcomeName />
                 <SignInSignOutButton />
