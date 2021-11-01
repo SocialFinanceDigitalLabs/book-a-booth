@@ -1,5 +1,5 @@
 import { loginRequest, graphConfig } from "../authConfig";
-import { msalInstance } from "../index";
+import { msalInstance } from "./MSALSetup";
 import {InteractionRequiredAuthError} from "@azure/msal-browser";
 
 export const callMsGraphIter = async (url, opts) => {
