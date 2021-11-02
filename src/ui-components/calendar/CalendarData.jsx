@@ -45,7 +45,6 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
         }
     }, [dates, boothData, calendarData])
 
-    console.log(calendarView)
     return (
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 250 }} size="small">

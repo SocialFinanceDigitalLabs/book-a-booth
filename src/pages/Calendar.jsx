@@ -11,6 +11,7 @@ import CalendarData from "../ui-components/calendar/CalendarData";
 import { Loading } from "../ui-components/Loading";
 import { ErrorComponent } from "../ui-components/ErrorComponent";
 import {cancelEvent, bookBooth, useCalendarService} from "../utils/CalendarService";
+import InstantBook from "../ui-components/calendar/InstantBook";
 
 const CalendarContent = () => {
     const [date] = useQueryParam('date', StringParam);
@@ -42,6 +43,7 @@ const CalendarContent = () => {
     return (
         <Paper>
             { calendarService && <>
+                <InstantBook bookClick={bookClick}/>
                 <CalendarData calendarService={calendarService} bookClick={bookClick}
                               deleteEventClick={deleteEventClick} />
                 <Button onClick={calendarService.refresh}>Refresh</Button>
