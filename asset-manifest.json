@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.js": "/static/js/main.663cc729.chunk.js",
-    "main.js.map": "/static/js/main.663cc729.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.e8082e02.js",
-    "runtime-main.js.map": "/static/js/runtime-main.e8082e02.js.map",
-    "static/js/2.5ba0a341.chunk.js": "/static/js/2.5ba0a341.chunk.js",
-    "static/js/2.5ba0a341.chunk.js.map": "/static/js/2.5ba0a341.chunk.js.map",
-    "index.html": "/index.html",
-    "static/js/2.5ba0a341.chunk.js.LICENSE.txt": "/static/js/2.5ba0a341.chunk.js.LICENSE.txt"
+    "main.js": "/zoombooth/static/js/main.663cc729.chunk.js",
+    "main.js.map": "/zoombooth/static/js/main.663cc729.chunk.js.map",
+    "runtime-main.js": "/zoombooth/static/js/runtime-main.136681d2.js",
+    "runtime-main.js.map": "/zoombooth/static/js/runtime-main.136681d2.js.map",
+    "static/js/2.5ba0a341.chunk.js": "/zoombooth/static/js/2.5ba0a341.chunk.js",
+    "static/js/2.5ba0a341.chunk.js.map": "/zoombooth/static/js/2.5ba0a341.chunk.js.map",
+    "index.html": "/zoombooth/index.html",
+    "static/js/2.5ba0a341.chunk.js.LICENSE.txt": "/zoombooth/static/js/2.5ba0a341.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.e8082e02.js",
+    "static/js/runtime-main.136681d2.js",
     "static/js/2.5ba0a341.chunk.js",
     "static/js/main.663cc729.chunk.js"
   ]
