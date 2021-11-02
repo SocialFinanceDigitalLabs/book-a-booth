@@ -33,6 +33,7 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
                         return {
                             timeslot,
                             start: dates.intervals[timeslot],
+                            end: dates.intervals[timeslot] + dates.interval,
                             available: boothData ? boothData.available[timeslot] : -1,
                             event: calendarData ? calendarData.filter(e => e.id === calendarData.intervals[timeslot]) : [],
                         }
@@ -99,7 +100,9 @@ const CalendarCell = ({day, bookClick, deleteEventClick}) => {
         }
     }, [mode]);
 
-    if (day.event && day.event.length > 0) {
+    if (day.end < Date.now() / 1000) {
+        return <TableCell />
+    } else if (day.event && day.event.length > 0) {
         return <BookedCell day={day} deleteEventClick={deleteEventClick} />
     } else if (mode === "normal") {
         return <AvailabilityCell day={day} onClick={click} />

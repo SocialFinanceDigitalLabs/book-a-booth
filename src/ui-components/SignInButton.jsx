@@ -44,8 +44,7 @@ export const SignInButton = () => {
                 open={open}
                 onClose={() => setAnchorEl(null)}
             >
-                <MenuItem onClick={() => handleLogin("popup")} key="loginPopup">Sign in using Popup</MenuItem>
-                <MenuItem onClick={() => handleLogin("redirect")} key="loginRedirect">Sign in using Redirect</MenuItem>
+                <MenuItem onClick={() => handleLogin("redirect")} key="loginRedirect">Sign in</MenuItem>
             </Menu>
         </div>
     )
