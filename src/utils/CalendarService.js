@@ -87,17 +87,47 @@ const loadCalendarData = async dates => {
     return enrichCalendarData(calendarData, dates);
 };
 
-export const bookBooth = async (booth, startTime, endTime) => {
-    const url = "/me/calendar/events";
+export const bookBooth = async (start, duration) => {
+    const startTime =  dayjs.unix(start).tz(calendarTimeZone);
+    const endTime = startTime.add(duration, "minutes");
     const headers = {"Content-Type": "application/json"};
-    const body = {
-        subject: "Booth Booking",
-        start: {dateTime: dayjs.unix(startTime).tz(calendarTimeZone).format(timeFormat), timeZone: calendarTimeZone},
-        end: {dateTime: dayjs.unix(endTime).tz(calendarTimeZone).add(interval, "seconds").format(timeFormat),
-            timeZone: calendarTimeZone},
-        attendees: [{emailAddress: {address: booth}}]
+    const queryBody = {
+        schedules: zoomBooths,
+        startTime: {
+            dateTime: startTime.format(timeFormatNoTz),
+            timeZone: calendarTimeZone,
+        },
+        endTime: {
+            dateTime: endTime.format(timeFormatNoTz),
+            timeZone: calendarTimeZone,
+        },
+        availabilityViewInterval: duration
     }
-    return await callMsGraph(url, {method: "POST", headers, body: JSON.stringify(body)});
+
+    const boothResponse = await callMsGraph("/me/calendar/getSchedule",
+        {method: "POST", headers, body: JSON.stringify(queryBody)});
+    const boothData = await boothResponse.json();
+    const availableBooths = boothData.value.filter(e => e.availabilityView === "0");
+
+    if (availableBooths.length === 0) {
+        return {error: "nobooth"};
+    }
+
+    const selectedBooth = availableBooths[Math.floor(Math.random() * availableBooths.length)];
+    const boothId = selectedBooth.scheduleId;
+    const boothName = boothId.split("@")[0];
+    const boothNumber = boothName.replace("zoombooth", '');
+
+    const body = {
+        subject: `Booth ${boothNumber}`,
+        start: {dateTime: startTime.format(timeFormat), timeZone: calendarTimeZone},
+        end: {dateTime: startTime.add(duration, "minutes").format(timeFormat), timeZone: calendarTimeZone},
+        attendees: [{emailAddress: {address: selectedBooth.scheduleId}}]
+    }
+    const bookingResult = await callMsGraph("/me/calendar/events",
+        {method: "POST", headers, body: JSON.stringify(body)});
+    const bookingData = await bookingResult.json();
+    return {boothId, boothName, boothNumber, bookingData}
 }
 
 export const cancelEvent = async eventId => {

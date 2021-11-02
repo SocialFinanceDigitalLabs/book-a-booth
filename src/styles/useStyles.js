@@ -1,4 +1,5 @@
 import { makeStyles } from '@mui/styles';
+import {grey} from "@mui/material/colors";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -13,6 +14,14 @@ const useStyles = makeStyles((theme) => ({
           textDecoration: 'none',
       },
     },
+    bookingCell: {
+        backgroundColor: grey.A400,
+        "& div": {
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+        }
+    }
 }));
 
 export default useStyles;

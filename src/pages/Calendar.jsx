@@ -10,35 +10,41 @@ import {StringParam, useQueryParam} from "use-query-params";
 import CalendarData from "../ui-components/calendar/CalendarData";
 import { Loading } from "../ui-components/Loading";
 import { ErrorComponent } from "../ui-components/ErrorComponent";
-import {cancelEvent, useCalendarService} from "../utils/CalendarService";
+import {cancelEvent, bookBooth, useCalendarService} from "../utils/CalendarService";
 
 const CalendarContent = () => {
     const [date] = useQueryParam('date', StringParam);
-    const wide = useMediaQuery('(min-width:750px)');
-    const calendarService = useCalendarService({startDate: date, days: wide ? 5 : 1});
+    const narrow = useMediaQuery('(max-width:750px)');
+    const calendarService = useCalendarService({startDate: date, days: narrow ? 1 : 5});
 
     useEffect(() => {
-        const timeoutId = setTimeout(() => calendarService.refresh(), 30*1000);
+        const timeoutId = setTimeout(() => calendarService.refresh(), 15*1000);
         return () => {
             clearTimeout(timeoutId);
         }
     }, [calendarService])
 
-    const cancelEventClick = useCallback(async eventId => {
+    const bookClick = useCallback(async (startTime, duration) => {
+        const bookingResult = await bookBooth(startTime, duration);
+        setTimeout(() => calendarService.refresh(), 3000);
+        setTimeout(() => calendarService.refresh(), 6000);
+        setTimeout(() => calendarService.refresh(), 9000);
+        return bookingResult;
+    }, [calendarService])
+
+    const deleteEventClick = useCallback(async eventId => {
         await cancelEvent(eventId);
-        calendarService.refresh();
+        setTimeout(() => calendarService.refresh(), 2000);
+        setTimeout(() => calendarService.refresh(), 4000);
+        setTimeout(() => calendarService.refresh(), 6000);
     }, [calendarService])
 
     return (
         <Paper>
             { calendarService && <>
-                <CalendarData calendarService={calendarService} />
+                <CalendarData calendarService={calendarService} bookClick={bookClick}
+                              deleteEventClick={deleteEventClick} />
                 <Button onClick={calendarService.refresh}>Refresh</Button>
-                { calendarService.calendarData && calendarService.calendarData.map(event => {
-                    return <li key={event.id}>
-                        <Button onClick={() => cancelEventClick(event.id)}>Cancel {event.subject}</Button>
-                    </li>
-                })}
             </>
             }
         </Paper>

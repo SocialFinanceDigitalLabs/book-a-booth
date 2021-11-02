@@ -9,12 +9,10 @@ import Paper from "@mui/material/Paper";
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentNeutralIcon from '@mui/icons-material/SentimentNeutral';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import Button from "@mui/material/Button";
-import {bookBooth} from "../../utils/CalendarService";
-import {zoomBooths} from "../../utils/CalendarDataUtil";
 import dayjs from "dayjs";
+import {Typography} from "@mui/material";
+import useStyles from "../../styles/useStyles";
 
 const availableColors = [
     "#EF9A9A",
@@ -22,71 +20,9 @@ const availableColors = [
     "#FFF59D",
 ]
 
-const getAvailableIcon = day => {
-    if (day.selected) {
-        return ['#CCC', ScheduleSendIcon];
-    }
-    if (day.events !== undefined && day.events !== -1) {
-        return ['#00F', EventAvailableIcon];
-    }
-    const color = day.available >= availableColors.length ? "#A5D6A7" : availableColors[day.available];
-    if (day.available === 0) {
-        return [color, SentimentVeryDissatisfiedIcon];
-    } else if (day.available <= 2) {
-        return [color, SentimentNeutralIcon];
-    } else {
-        return [color, SentimentVerySatisfiedIcon];
-    }
-}
 
-
-
-const CalendarData = ({calendarService}) => {
-    const [selected, setSelected] = useState([]);
-    const [groups, setGroups] = useState([])
-    const {dates, boothData, calendarData, refresh} = calendarService;
-
-    const selectCell = useCallback(cellIndex => {
-        const arrayIndex = selected.indexOf(cellIndex);
-        const newArray = [...selected]
-
-        if (arrayIndex < 0) {
-            newArray.push(cellIndex);
-            newArray.sort((a, b) => a - b);
-        } else {
-            newArray.splice(arrayIndex, 1);
-        }
-
-        const groups = Array(newArray.length).fill(-1).map((v, ix) => {
-            const prevValue = newArray[ix] - 1;
-            return newArray.indexOf(prevValue);
-        }).reduce((pv, cv, ci, arr) => {
-            if (cv < 0) {
-                pv.push([newArray[ci]])
-            } else {
-                pv[pv.length-1].push(newArray[ci])
-            }
-            return pv;
-        }, []).map((arr, ix) => {
-            return {
-                start: dates.intervals[arr[0]],
-                end: dates.intervals[arr[arr.length-1]],
-                cells: arr,
-            }
-        });
-
-        setSelected(newArray);
-        setGroups(groups);
-    }, [selected, dates]);
-
-
-    const bookBoothClick = useCallback(g => {
-        bookBooth(zoomBooths[0], g.start, g.end).then((result) => {
-            refresh();
-            setSelected(selected.filter(x => !g.cells.includes(x)));
-        })
-    }, [refresh, selected]);
-
+const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
+    const {dates, boothData, calendarData} = calendarService;
     const calendarView = useMemo(() => {
         if (dates && dates.datesIndexes) {
             return dates.datesIndexes[0].map(timeslotIndex => {
@@ -96,9 +32,9 @@ const CalendarData = ({calendarService}) => {
                         const timeslot = dateIndex[timeslotIndex];
                         return {
                             timeslot,
+                            start: dates.intervals[timeslot],
                             available: boothData ? boothData.available[timeslot] : -1,
-                            events: calendarData ? calendarData.intervals[timeslot] : -1,
-                            selected: selected.indexOf(timeslot) >=0,
+                            event: calendarData ? calendarData.filter(e => e.id === calendarData.intervals[timeslot]) : [],
                         }
                     })
                 };
@@ -106,12 +42,10 @@ const CalendarData = ({calendarService}) => {
         } else {
             return [];
         }
-    }, [dates, boothData, calendarData, selected])
+    }, [dates, boothData, calendarData])
 
-    console.log("calendarView", calendarView);
-
+    console.log(calendarView)
     return (
-        <>
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 250 }} size="small">
                 <TableHead>
@@ -138,25 +72,114 @@ const CalendarData = ({calendarService}) => {
                                 <TableCell component="th" scope="row">
                                     { dayjs.unix(row.time).format("HH:mm") }
                                 </TableCell>
-                                { row.days.map(day => {
-                                    const [backgroundColor, Icon] = getAvailableIcon(day);
-                                    return (
-                                        <TableCell key={day.timeslot} sx={{backgroundColor}}
-                                                   onClick={() => selectCell(day.timeslot)}
-                                                   align="center">
-                                            <Icon />
-                                        </TableCell>
-                                    )
-                                })}
+                                { row.days.map(day => <CalendarCell
+                                    key={day.timeslot} day={day} bookClick={bookClick}
+                                    deleteEventClick={deleteEventClick}
+                                />) }
                             </TableRow>
                         )})}
                 </TableBody>
             </Table>
         </TableContainer>
-        {groups && groups.map((g, ix) =>
-            <Paper key={ix}><Button onClick={() => bookBoothClick(g)}>Book</Button></Paper>
-        )}
-        </>
     )};
-
 export default CalendarData;
+
+const CalendarCell = ({day, bookClick, deleteEventClick}) => {
+    const [mode, setMode] = useState("normal")
+
+    const myBookClick = useCallback(async (time, duration) => {
+        const result = await bookClick(time, duration);
+        setMode("normal");
+        return result;
+    }, [bookClick])
+
+    const click = useCallback(() => {
+        if (mode === "normal") {
+            setMode("selected")
+        }
+    }, [mode]);
+
+    if (day.event && day.event.length > 0) {
+        return <BookedCell day={day} deleteEventClick={deleteEventClick} />
+    } else if (mode === "normal") {
+        return <AvailabilityCell day={day} onClick={click} />
+    } else {
+        return <BookingCell day={day} onCancel={() => setMode("normal")} bookClick={myBookClick} align="center"/>
+    }
+}
+
+const BookedCell = ({day, deleteEventClick}) => {
+    const classes = useStyles();
+    const [clicked, setClicked] = useState(false);
+    const [deleteRequested, setDeleteRequested] = useState(false);
+    if (clicked) {
+        return (
+            <TableCell align="center"  className={classes.bookingCell}>
+                <div>
+                    <Button variant="contained" color="error" onClick={() => {
+                        setDeleteRequested(true);
+                        setClicked(false);
+                        deleteEventClick(day.event[0].id)
+                    }}>
+                        Cancel {day.event[0].subject}
+                    </Button>
+                    <Button variant="outlined"  onClick={() => setClicked(false)}>Leave as is</Button>
+                </div>
+            </TableCell>
+        )
+    }
+    return (
+        <TableCell align="center" onClick={() => setClicked(true)}>
+            { deleteRequested && "Cancelling "}
+            {day.event[0].subject}
+        </TableCell>
+    )
+}
+
+const AvailabilityCell = ({day, onClick}) => {
+    const backgroundColor = day.available >= availableColors.length ? "#A5D6A7" : availableColors[day.available];
+    let Icon;
+    if (day.available === 0) {
+        Icon = SentimentVeryDissatisfiedIcon;
+    } else if (day.available <= 2) {
+        Icon = SentimentNeutralIcon;
+    } else {
+        Icon = SentimentVerySatisfiedIcon;
+    }
+    return (
+        <TableCell sx={{backgroundColor}} align="center" onClick={onClick}>
+            <Icon />
+        </TableCell>
+    );
+};
+
+const BookingCell = ({day, onCancel, bookClick}) => {
+    const classes = useStyles();
+    const [booking, setBooking] = useState(false);
+    const book = useCallback((duration) => {
+        setBooking(true);
+        bookClick(day.start, duration).then(result =>
+            setBooking(false)
+        )}, [day, bookClick])
+
+    if (booking) {
+        return (
+            <TableCell align="center" className={classes.bookingCell}>
+                Sending Booking Request...
+            </TableCell>
+        )
+    }
+
+    return (
+        <TableCell align="center" className={classes.bookingCell}>
+            <div>
+                <Typography>Book Booth</Typography>
+                <Button variant="outlined" onClick={() => book(30)}>30 min</Button>
+                <Button variant="outlined" onClick={() => book(60)}>60 min</Button>
+                <Button variant="outlined" onClick={() => book(90)}>90 min</Button>
+                <Button variant="outlined" onClick={() => book(120)}>120 min</Button>
+                <Button variant="contained" onClick={onCancel} >Cancel</Button>
+            </div>
+        </TableCell>
+    );
+};

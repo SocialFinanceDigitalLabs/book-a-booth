@@ -4,7 +4,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { ThemeProvider } from '@mui/material';
+import {CssBaseline, ThemeProvider} from '@mui/material';
 import { QueryParamProvider } from 'use-query-params';
 import { theme } from "./styles/theme";
 import App from './App';
@@ -12,6 +12,7 @@ import {msalInstance} from "./utils/MSALSetup";
 
 ReactDOM.render(
     <React.StrictMode>
+        <CssBaseline/>
         <Router>
             <ThemeProvider theme={theme}>
                 <QueryParamProvider ReactRouterRoute={Route}>
