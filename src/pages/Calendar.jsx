@@ -16,7 +16,7 @@ import InstantBook from "../ui-components/calendar/InstantBook";
 const CalendarContent = () => {
     const [date] = useQueryParam('date', StringParam);
     const narrow = useMediaQuery('(max-width:750px)');
-    const calendarService = useCalendarService({startDate: date, days: narrow ? 1 : 5});
+    const calendarService = useCalendarService({startDate: date, days: narrow ? 2 : 5});
 
     useEffect(() => {
         const timeoutId = setTimeout(() => calendarService.refresh(), 15*1000);
