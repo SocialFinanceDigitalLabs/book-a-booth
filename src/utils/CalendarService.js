@@ -1,14 +1,14 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {callMsGraph, callMsGraphIter} from "./MsGraphApiCall";
 import {
-    calendarTimeZone,
+    calendarTimeZone, enrichCalendarData, findBooths,
     getDatePeriod,
     interval,
     timeFormat,
     timeFormatNoTz, transformBoothData,
-    transformCalendarData,
     zoomBooths
 } from "./CalendarDataUtil";
+import dayjs from "dayjs";
 
 
 export const useCalendarService = ({startDate, days}) => {
@@ -60,31 +60,31 @@ const useApiData = (callback, deps) => {
 const loadBoothData = async (dates) => {
     const url = "/me/calendar/getSchedule";
     const headers = {"Content-Type": "application/json"};
-    console.log("QUERYING BOOTH", dates.startTime)
     const body = {
         schedules: zoomBooths,
         startTime: {
-            dateTime: dates.startTime.format(timeFormatNoTz),
+            dateTime: dayjs.unix(dates.startTime).tz(calendarTimeZone).format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
         endTime: {
-            dateTime: dates.endTime.format(timeFormatNoTz),
+            dateTime: dayjs.unix(dates.endTime).tz(calendarTimeZone).format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
-        availabilityViewInterval: interval
+        availabilityViewInterval: Math.round(interval / 60)
     }
-    const boothData =  await callMsGraph(url, {method: "POST", headers, body: JSON.stringify(body)});
+    const boothData = await callMsGraph(url, {method: "POST", headers, body: JSON.stringify(body)});
     return transformBoothData(await boothData.json(), dates);
 };
 
-const loadCalendarData = async (dates) => {
+const loadCalendarData = async dates => {
     const url = `/me/calendar/calendarView?`
-        + `startDateTime=${encodeURIComponent(dates.startTime.format(timeFormat))}&`
-        + `endDateTime=${encodeURIComponent(dates.endTime.format(timeFormat))}&`
+        + `startDateTime=${encodeURIComponent(dayjs.unix(dates.startTime).format(timeFormat))}&`
+        + `endDateTime=${encodeURIComponent(dayjs.unix(dates.endTime).format(timeFormat))}&`
         + `$select=start,end,subject,attendees&`
         + `$top=50`
-    const calendarData = await callMsGraphIter(url);
-    return transformCalendarData(calendarData, dates)
+    const calendarData = findBooths(await callMsGraphIter(url))
+        .filter(e => e.acceptedBooths.length > 0);
+    return enrichCalendarData(calendarData, dates);
 };
 
 export const bookBooth = async (booth, startTime, endTime) => {
@@ -92,8 +92,9 @@ export const bookBooth = async (booth, startTime, endTime) => {
     const headers = {"Content-Type": "application/json"};
     const body = {
         subject: "Booth Booking",
-        start: {dateTime: startTime.format(timeFormat), timeZone: calendarTimeZone},
-        end: {dateTime: endTime.add(interval, "minutes").format(timeFormat), timeZone: calendarTimeZone},
+        start: {dateTime: dayjs.unix(startTime).tz(calendarTimeZone).format(timeFormat), timeZone: calendarTimeZone},
+        end: {dateTime: dayjs.unix(endTime).tz(calendarTimeZone).add(interval, "seconds").format(timeFormat),
+            timeZone: calendarTimeZone},
         attendees: [{emailAddress: {address: booth}}]
     }
     return await callMsGraph(url, {method: "POST", headers, body: JSON.stringify(body)});

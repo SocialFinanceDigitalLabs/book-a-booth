@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
@@ -9,8 +9,12 @@ import Paper from "@mui/material/Paper";
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentNeutralIcon from '@mui/icons-material/SentimentNeutral';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import Button from "@mui/material/Button";
-import {bookBooth, zoomBooths} from "../../utils/CalendarService";
+import {bookBooth} from "../../utils/CalendarService";
+import {zoomBooths} from "../../utils/CalendarDataUtil";
+import dayjs from "dayjs";
 
 const availableColors = [
     "#EF9A9A",
@@ -18,11 +22,17 @@ const availableColors = [
     "#FFF59D",
 ]
 
-const getAvailableIcon = available => {
-    const color = available >= availableColors.length ? "#A5D6A7" : availableColors[available];
-    if (available === 0) {
+const getAvailableIcon = day => {
+    if (day.selected) {
+        return ['#CCC', ScheduleSendIcon];
+    }
+    if (day.events !== undefined && day.events !== -1) {
+        return ['#00F', EventAvailableIcon];
+    }
+    const color = day.available >= availableColors.length ? "#A5D6A7" : availableColors[day.available];
+    if (day.available === 0) {
         return [color, SentimentVeryDissatisfiedIcon];
-    } else if (available <= 2) {
+    } else if (day.available <= 2) {
         return [color, SentimentNeutralIcon];
     } else {
         return [color, SentimentVerySatisfiedIcon];
@@ -34,7 +44,7 @@ const getAvailableIcon = available => {
 const CalendarData = ({calendarService}) => {
     const [selected, setSelected] = useState([]);
     const [groups, setGroups] = useState([])
-    const {dates, boothData, refresh} = calendarService;
+    const {dates, boothData, calendarData, refresh} = calendarService;
 
     const selectCell = useCallback(cellIndex => {
         const arrayIndex = selected.indexOf(cellIndex);
@@ -77,51 +87,69 @@ const CalendarData = ({calendarService}) => {
         })
     }, [refresh, selected]);
 
-    if (!boothData) {
-        return [];
-    }
+    const calendarView = useMemo(() => {
+        if (dates && dates.datesIndexes) {
+            return dates.datesIndexes[0].map(timeslotIndex => {
+                return {
+                    time: dates.intervals[timeslotIndex],
+                    days: dates.datesIndexes.map(dateIndex => {
+                        const timeslot = dateIndex[timeslotIndex];
+                        return {
+                            timeslot,
+                            available: boothData ? boothData.available[timeslot] : -1,
+                            events: calendarData ? calendarData.intervals[timeslot] : -1,
+                            selected: selected.indexOf(timeslot) >=0,
+                        }
+                    })
+                };
+            })
+        } else {
+            return [];
+        }
+    }, [dates, boothData, calendarData, selected])
+
+    console.log("calendarView", calendarView);
 
     return (
         <>
         <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} size="small">
+            <Table sx={{ minWidth: 250 }} size="small">
                 <TableHead>
                     <TableRow>
                         <TableCell>Time</TableCell>
                         {dates.dates.map(d =>
-                            <TableCell key={d} align="center">{d.format("ddd, D MMM")}</TableCell>
+                            <TableCell key={d.noon} align="center">
+                                {dayjs.unix(d.noon).format("ddd, D MMM")}
+                            </TableCell>
                         )}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {dates.datesIndexes[0].map((slots, rowIndex) => {
+                    {calendarView.map((row, rowIndex) => {
                         const borderBottom = rowIndex % 2 === 0 ? 0 : '1px solid #eee';
                         return (
                             <TableRow
-                                key={rowIndex}
+                                key={row.time}
                                 sx={{
-                                    'td,th': { borderBottom },
-                                    td: { borderRight: '1px solid #eee' },
+                                    'td,th': { borderBottom, borderRight: '1px solid #eee' },
                                     '&:last-child td, &:last-child th': { borderBottom: 0 }
                                 }}
-                            >
+                                >
                                 <TableCell component="th" scope="row">
-                                    {dates.intervals[slots].format("HH:mm")}
+                                    { dayjs.unix(row.time).format("HH:mm") }
                                 </TableCell>
-                                {dates.datesIndexes.map((dateIndexes, dix) => {
-                                    const cellIndex = dateIndexes[rowIndex]
-                                    const available = boothData.available[cellIndex];
-                                    const [color, Icon] = getAvailableIcon(available);
-                                    const backgroundColor = selected.indexOf(cellIndex) < 0 ? color : '#ccc';
+                                { row.days.map(day => {
+                                    const [backgroundColor, Icon] = getAvailableIcon(day);
                                     return (
-                                        <TableCell key={dix} sx={{backgroundColor}}
-                                                   onClick={() => selectCell(cellIndex)}
-                                                   align="center"><Icon /></TableCell>
+                                        <TableCell key={day.timeslot} sx={{backgroundColor}}
+                                                   onClick={() => selectCell(day.timeslot)}
+                                                   align="center">
+                                            <Icon />
+                                        </TableCell>
                                     )
                                 })}
                             </TableRow>
-                        )
-                    })}
+                        )})}
                 </TableBody>
             </Table>
         </TableContainer>

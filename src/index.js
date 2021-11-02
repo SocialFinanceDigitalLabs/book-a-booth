@@ -3,8 +3,9 @@
 //import "core-js/stable"; 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ThemeProvider } from '@mui/material';
+import { QueryParamProvider } from 'use-query-params';
 import { theme } from "./styles/theme";
 import App from './App';
 import {msalInstance} from "./utils/MSALSetup";
@@ -13,7 +14,9 @@ ReactDOM.render(
     <React.StrictMode>
         <Router>
             <ThemeProvider theme={theme}>
-                <App pca={msalInstance} />
+                <QueryParamProvider ReactRouterRoute={Route}>
+                    <App pca={msalInstance} />
+                </QueryParamProvider>
             </ThemeProvider>
         </Router>
     </React.StrictMode>,

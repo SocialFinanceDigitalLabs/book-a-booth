@@ -1,5 +1,13 @@
 import dayjs from "dayjs";
-import {getDatePeriod, getNextWorkingday} from "./CalendarDataUtil";
+import {
+    enrichCalendarData,
+    findBooths,
+    getDatePeriod,
+    getNextWorkingday,
+    transformBoothData,
+    transformCalendarData,
+    zoomBooths
+} from "./CalendarDataUtil";
 
 test('next working day on normal weekday', () => {
     let date = getNextWorkingday(dayjs('2021-07-05'))
@@ -86,12 +94,69 @@ test('Test day start BST/end GMT', () => {
 
 test('Test intervals', () => {
     const period = getDatePeriod("2021-10-29", 5);
-    expect(period.intervals[period.intervalCount-1] + (period.interval*60)).toEqual(period.endTime)
+    expect(period.intervals[period.intervalCount-1] + (period.interval)).toEqual(period.endTime)
 
     // The first and last index for each date should correspond to the startTime and start of the last period.
     period.datesIndexes.forEach((arr, ix) => {
         expect(period.intervals[arr[0]]).toEqual(period.dates[ix].startTime);
-        expect(period.intervals[arr[arr.length-1]] + period.interval*60).toEqual(period.dates[ix].endTime);
+        expect(period.intervals[arr[arr.length-1]] + period.interval).toEqual(period.dates[ix].endTime);
     })
+});
 
+test('Transform booth data by adding combined metrics', () => {
+    const boothData = {
+        value: [
+            {availabilityView: "00111000"},
+            {availabilityView: "00001100"},
+            {availabilityView: "00011100"},
+        ]
+    };
+    const output = transformBoothData(boothData);
+    expect(output.occupied).toEqual([0, 0, 1, 2, 3, 2, 0, 0]);
+    expect(output.available).toEqual([3, 3, 2, 1, 0, 1, 3, 3]);
+    expect(output.value).toBe(boothData.value)
+});
+
+test('Find booth information', () => {
+    const calendarData = [{
+        attendees: [
+            {emailAddress:{address:zoomBooths[0]}, status: {response: "accepted"}},
+            {emailAddress:{address:zoomBooths[1]}, status: {response: "declined"}},
+            {emailAddress:{address:"other@domain.com"}, status: {response: "accepted"}}
+        ]
+    }];
+    const output = findBooths(calendarData);
+    expect(output[0].booths).toEqual([
+        {emailAddress:{address:zoomBooths[0]}, status: {response: "accepted"}},
+        {emailAddress:{address:zoomBooths[1]}, status: {response: "declined"}},
+    ])
+    expect(output[0].acceptedBooths).toEqual([
+        {emailAddress:{address:zoomBooths[0]}, status: {response: "accepted"}},
+    ])
+});
+
+test('Enrich booth information', () => {
+    const calendarData = [{
+        id: "E1",
+        start:{dateTime:"2021-07-01T10:00", timeZone: "Europe/London"},
+        end:{dateTime:"2021-07-01T11:00", timeZone: "Europe/London"},
+    },{
+        id: "E2",
+        start:{dateTime:"2021-07-01T13:05", timeZone: "Europe/London"},
+        end:{dateTime:"2021-07-01T13:30", timeZone: "Europe/London"},
+    },{
+        id: "E3",
+        start:{dateTime:"2021-07-01T14:05", timeZone: "Europe/London"},
+        end:{dateTime:"2021-07-01T14:45", timeZone: "Europe/London"},
+    }];
+    const dates = getDatePeriod("2021-07-01");
+    const output = enrichCalendarData(calendarData, dates);
+    expect(output[0].startIndex).toEqual(4);
+    expect(output[0].endIndex).toEqual(5);
+    expect(output[1].startIndex).toEqual(10);
+    expect(output[1].endIndex).toEqual(10);
+    expect(output[2].startIndex).toEqual(12);
+    expect(output[2].endIndex).toEqual(13);
+
+    expect(output.intervals.join(".")).toEqual("....E1.E1.....E2..E3.E3")
 });
