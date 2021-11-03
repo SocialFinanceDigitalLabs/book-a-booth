@@ -30,6 +30,8 @@ jobs:
           yarn test
 
       - name: Build 🔧
+        env:
+          REACT_APP_GOSQUARED: GSN-408013-S
         run: |
           yarn build
 

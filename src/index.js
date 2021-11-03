@@ -10,11 +10,13 @@ import { theme } from "./styles/theme";
 import App from './App';
 import {msalInstance} from "./utils/MSALSetup";
 import {SnackbarProvider} from "notistack";
+import GoSquared from "./utils/GoSquared";
 
 ReactDOM.render(
     <React.StrictMode>
         <CssBaseline/>
         <Router>
+            <GoSquared />
             <ThemeProvider theme={theme}>
                 <QueryParamProvider ReactRouterRoute={Route}>
                     <SnackbarProvider maxSnack={3}>
