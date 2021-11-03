@@ -12,8 +12,11 @@ import { Loading } from "../ui-components/Loading";
 import { ErrorComponent } from "../ui-components/ErrorComponent";
 import {cancelEvent, bookBooth, useCalendarService} from "../utils/CalendarService";
 import InstantBook from "../ui-components/calendar/InstantBook";
+import Grid from "@mui/material/Grid";
+import {useTheme} from "@emotion/react";
 
 const CalendarContent = () => {
+    const theme = useTheme();
     const [date] = useQueryParam('date', StringParam);
     const narrow = useMediaQuery('(max-width:750px)');
     const calendarService = useCalendarService({startDate: date, days: narrow ? 2 : 5});
@@ -41,15 +44,25 @@ const CalendarContent = () => {
     }, [calendarService])
 
     return (
-        <Paper>
-            { calendarService && <>
-                <InstantBook bookClick={bookClick}/>
-                <CalendarData calendarService={calendarService} bookClick={bookClick}
-                              deleteEventClick={deleteEventClick} />
-                <Button onClick={calendarService.refresh}>Refresh</Button>
-            </>
-            }
-        </Paper>
+        <Grid item xs={12} md={10} lg={8}>
+            <Grid container justifyContent="left" xs={{width: '90%'}} rowSpacing={theme.spacing(2)}>
+                <Grid item xs={12} md={3}>
+                    <InstantBook bookClick={bookClick}/>
+                </Grid>
+                <Grid item xs={12}>
+                    <Paper>
+                        { calendarService && <>
+                            <CalendarData calendarService={calendarService} bookClick={bookClick}
+                                          deleteEventClick={deleteEventClick} />
+                        </>
+                        }
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                    <Button variant="outlined" color="secondary" onClick={() => calendarService.refresh()}>Refresh</Button>
+                </Grid>
+            </Grid>
+        </Grid>
 
     );
 };

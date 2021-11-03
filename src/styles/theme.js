@@ -1,20 +1,20 @@
 import { unstable_createMuiStrictModeTheme as createMuiTheme } from '@mui/material/styles';
-import red from '@mui/material/colors/red';
+import {blue, red, green} from "@mui/material/colors";
 
 // Create a theme instance.
 export const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#556cd6',
+      main: blue[800],
     },
     secondary: {
-      main: '#19857b',
+      main: green[800],
     },
     error: {
       main: red.A400,
     },
     background: {
-      default: '#fff',
+      default: '#FFF',
     },
   },
 });
