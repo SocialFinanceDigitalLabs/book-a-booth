@@ -1,70 +1,84 @@
-# Getting Started with Create React App
+# Social Finance's Book-A-Booth
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a small, React-based app to makes it easier to find a 
+free Zoom booth and book it. Rather than opening multiple calendars,
+or adding several schedules, this app shows booth availability as a heat
+map and allows booking of booths through a one-click (well, two click) 
+approach. 
 
-## Available Scripts
+This project is entirely "homemade" and contributions are very welcome!
 
-In the project directory, you can run:
+You don't need to know how to code to get involved. Suggestions for improvements,
+user interface ideas, bug reports, every little suggestion will help us make
+this tool better and booking booths easier. 
 
-### `yarn start`
+If you have a suggested improvement, please submit them in our issues log. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Join in the coding
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+This project was bootstrapped with [Create React App][create-react-app] which is 
+a simple way of getting started with React. It's a great way to quickly get started
+if you want to play around in a blank project. You can see the start in the
+[first commit][gh-first-light].
 
-### `yarn test`
+Next, since this project requires logging in with Microsoft Office 365 and Microsoft
+have generously provided great sample applications for a range of different
+scenarios, I copied in the 
+[MS Authentication Layer React Router sample][msal-react-router]. You can (and try)
+this version in [commit b1cac][gh-msal].
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## What do I need?
 
-### `yarn build`
+Patience. And a few tools. Most importantly you need [Node.js][node]. Follow the links
+to download a recent version of Node and install this.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Next, I highly recommend using [Yarn][yarn] for dependency management. Once you have 
+working Node version installed, installing Yarn should be as easy as:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```shell
+npm install -g yarn
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Now you are ready to check out this project. If you're not familiar with GIT, try
+one of the many tutorials available online. For windows, I can recommend 
+[this one][git-tutorial].
 
-### `yarn eject`
+Once you have checked out this repository, install the required libraries:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```shell
+yarn install
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+and then you are ready to launch the project itself:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```shell
+yarn start
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+After a few seconds you should see a message like this:
 
-## Learn More
+```
+Compiled successfully!
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+You can now view book-a-booth in the browser.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.86.31:3000
 
-### Code Splitting
+Note that the development build is not optimized.
+To create a production build, use yarn build.
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The application may also automatically pop-up in your browser. You're now ready to start
+coding!
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+[react]: https://reactjs.org/
+[create-react-app]: https://github.com/facebook/create-react-app
+[msal-react-router]: https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/samples/msal-react-samples/react-router-sample
+[node]: https://nodejs.org/
+[yarn]: https://yarnpkg.com/
+[git-tutorial]: https://www.computerhope.com/issues/ch001927.htm
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[gh-first-light]: https://github.com/SocialFinanceDigitalLabs/book-a-booth/tree/cc4e491da1237a12e022090da69485c74daafb4e
+[gh-msal]: https://github.com/SocialFinanceDigitalLabs/book-a-booth/commit/b1cac92f519633124b0977972bd7c67b1cae067f
