@@ -14,14 +14,11 @@ const GoSquared = () => {
     const activeAccount = instance.getActiveAccount();
     useEffect(() => {
         if (activeAccount) {
-            console.log("activeAccount", activeAccount)
             _gs('identify', {email: activeAccount.username, name: activeAccount.name});
         } else {
             _gs('unidentify');
         }
     }, [activeAccount]);
-
-
 
     if (GOSQUARED_GSN) {
         return (

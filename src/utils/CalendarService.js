@@ -9,6 +9,7 @@ import {
     zoomBooths
 } from "./CalendarDataUtil";
 import dayjs from "dayjs";
+import {_gs} from "./GoSquared";
 
 
 export const useCalendarService = ({startDate, days}) => {
@@ -88,6 +89,7 @@ const loadCalendarData = async dates => {
 };
 
 export const bookBooth = async (start, duration) => {
+    _gs('event', 'Book', {duration});
     const startTime =  dayjs.unix(start).tz(calendarTimeZone);
     const endTime = startTime.add(duration, "minutes");
     const headers = {"Content-Type": "application/json"};
@@ -131,6 +133,7 @@ export const bookBooth = async (start, duration) => {
 }
 
 export const cancelEvent = async eventId => {
+    _gs('event', 'Cancel', {});
     const url = `/me/calendar/events/${eventId}`;
     return await callMsGraph(url, {method: "DELETE"});
 }
