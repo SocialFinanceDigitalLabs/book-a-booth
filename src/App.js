@@ -9,7 +9,7 @@ import { CustomNavigationClient } from "./utils/NavigationClient";
 import { PageLayout } from "./ui-components/PageLayout";
 import { Logout } from "./pages/Logout";
 import {Calendar} from "./pages/Calendar";
-import GoSquared from "./utils/GoSquared";
+import GoSquared from "./utils/analytics/GoSquared";
 import React from "react";
 
 function App({ pca }) {

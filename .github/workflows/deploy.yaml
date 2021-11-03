@@ -32,6 +32,7 @@ jobs:
       - name: Build 🔧
         env:
           REACT_APP_GOSQUARED: GSN-408013-S
+          REACT_APP_SENTRY_DSN: "https://87354d732e2a4488addf620b1abce675@o108858.ingest.sentry.io/6048038"
         run: |
           yarn build
 

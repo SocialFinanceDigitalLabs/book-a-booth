@@ -10,6 +10,9 @@ import { theme } from "./styles/theme";
 import App from './App';
 import {msalInstance} from "./utils/MSALSetup";
 import {SnackbarProvider} from "notistack";
+import {init} from "./utils/analytics/Sentry";
+
+init();
 
 ReactDOM.render(
     <React.StrictMode>

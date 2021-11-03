@@ -9,7 +9,7 @@ import {
     zoomBooths
 } from "./CalendarDataUtil";
 import dayjs from "dayjs";
-import {_gs} from "./GoSquared";
+import {_gs} from "./analytics/GoSquared";
 
 
 export const useCalendarService = ({startDate, days}) => {
