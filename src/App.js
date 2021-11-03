@@ -33,6 +33,9 @@ function Pages() {
       <Route path="/logout">
           <Logout />
       </Route>
+      <Route path="/date/:date">
+          <Calendar />
+      </Route>
       <Route path="/">
           <Calendar />
       </Route>

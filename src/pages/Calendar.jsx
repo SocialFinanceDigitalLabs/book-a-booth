@@ -1,4 +1,6 @@
 import React, {useCallback, useEffect} from "react";
+import {useHistory, useParams} from "react-router-dom";
+
 import { MsalAuthenticationTemplate } from "@azure/msal-react";
 import { InteractionType } from "@azure/msal-browser";
 import { loginRequest } from "../authConfig";
@@ -6,19 +8,24 @@ import { loginRequest } from "../authConfig";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {StringParam, useQueryParam} from "use-query-params";
 import CalendarData from "../ui-components/calendar/CalendarData";
 import { Loading } from "../ui-components/Loading";
 import { ErrorComponent } from "../ui-components/ErrorComponent";
 import {cancelEvent, bookBooth, useCalendarService} from "../utils/CalendarService";
 import InstantBook from "../ui-components/calendar/InstantBook";
 import Grid from "@mui/material/Grid";
-import {useTheme} from "@emotion/react";
 import {useSnackbar} from "notistack";
+import useStyles from "../styles/useStyles";
+import IconButton from "@mui/material/IconButton";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import TodayIcon from '@mui/icons-material/Today';
+import dayjs from "dayjs";
 
 const CalendarContent = () => {
-    const theme = useTheme();
-    const [date] = useQueryParam('date', StringParam);
+    const classes = useStyles();
+    const history = useHistory()
+    const { date } = useParams();
     const narrow = useMediaQuery('(max-width:750px)');
     const calendarService = useCalendarService({startDate: date, days: narrow ? 2 : 5});
     const { enqueueSnackbar } = useSnackbar();
@@ -51,12 +58,34 @@ const CalendarContent = () => {
         setTimeout(() => calendarService.refresh(), 6000);
     }, [calendarService, enqueueSnackbar])
 
+    const navigate = useCallback((e) => {
+        const targetId = e.currentTarget.id;
+        if (targetId === "btn-next") {
+            const day = dayjs.unix(calendarService.dates.endTime)
+                .add(1, "days").format("YYYY-MM-DD")
+            history.push(`/date/${day}`)
+        } else if (targetId === "btn-prev") {
+            const day = dayjs.unix(calendarService.dates.startTime)
+                .subtract(calendarService.dates.dates.length+2, "days").format("YYYY-MM-DD")
+            history.push(`/date/${day}`)
+        } else {
+            history.push('/')
+        }
+    }, [calendarService, history]);
+
     return (
         <Grid item xs={12} md={10} lg={8}>
-            <Grid container justifyContent="left" xs={{width: '90%'}} rowSpacing={theme.spacing(2)}>
-                <Grid item xs={12} md={3}>
+            <Grid container className={classes.pageContainer}>
+                <Grid item xs={10}>
                     <InstantBook bookClick={bookClick}/>
                 </Grid>
+                <Grid item xs={2} sx={{display: 'flex', justifyContent: 'right'}}>
+                    <IconButton id="btn-prev" onClick={navigate}><ArrowBackIcon /></IconButton>
+                    <IconButton id="btn-tday" onClick={navigate}><TodayIcon /></IconButton>
+                    <IconButton id="btn-next" onClick={navigate}><ArrowForwardIcon /></IconButton>
+                </Grid>
+            </Grid>
+            <Grid container className={classes.pageContainer}>
                 <Grid item xs={12}>
                     <Paper>
                         { calendarService && <>
@@ -66,6 +95,8 @@ const CalendarContent = () => {
                         }
                     </Paper>
                 </Grid>
+            </Grid>
+            <Grid container className={classes.pageContainer}>
                 <Grid item xs={12} md={3}>
                     <Button variant="outlined" color="secondary" onClick={() => calendarService.refresh()}>Refresh</Button>
                 </Grid>
