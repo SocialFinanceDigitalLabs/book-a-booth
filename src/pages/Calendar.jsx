@@ -76,10 +76,10 @@ const CalendarContent = () => {
     return (
         <Grid item xs={12} md={10} lg={8}>
             <Grid container className={classes.pageContainer}>
-                <Grid item xs={10}>
+                <Grid item xs={6}>
                     <InstantBook calendarService={calendarService} bookClick={bookClick}/>
                 </Grid>
-                <Grid item xs={2} sx={{display: 'flex', justifyContent: 'right'}}>
+                <Grid item xs={6} sx={{display: 'flex', justifyContent: 'flex-end'}}>
                     <IconButton id="btn-prev" onClick={navigate}><ArrowBackIcon /></IconButton>
                     <IconButton id="btn-tday" onClick={navigate}><TodayIcon /></IconButton>
                     <IconButton id="btn-next" onClick={navigate}><ArrowForwardIcon /></IconButton>
