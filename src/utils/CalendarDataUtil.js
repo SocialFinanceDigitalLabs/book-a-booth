@@ -80,15 +80,16 @@ export const getNextWorkingday = date => {
  */
 export const getDatePeriod = (date, days) => {
     const dates = []
-    let nextDay = dayjs(date).hour(12).minute(0).second(0);
+    let nextDay = dayjs(date).tz(calendarTimeZone).hour(12).minute(0).second(0);
     const numDays = days > 0 ? days : 1;
     for (let i = 0; i < numDays; i++) {
         nextDay = getNextWorkingday(nextDay);
+        const nextDayFmt = nextDay.format("YYYY-MM-DD");
         dates.push({
-            date: nextDay.format("YYYY-MM-DD"),
-            noon: nextDay.hour(12).unix(),
-            startTime: nextDay.hour(scheduleStart).unix(),
-            endTime: nextDay.hour(scheduleEnd).unix()
+            date: nextDayFmt,
+            noon: dayjs.tz(`${nextDayFmt}T12:00:00`, calendarTimeZone).unix(),
+            startTime: dayjs.tz(`${nextDayFmt}T${scheduleStart}:00:00`, calendarTimeZone).unix(),
+            endTime: dayjs.tz(`${nextDayFmt}T${scheduleEnd}:00:00`, calendarTimeZone).unix(),
         });
         nextDay = nextDay.add(1, "days")
     }
@@ -149,8 +150,8 @@ export const transformBoothData = (boothData) => {
     };
     const intervals = data.value[0].availabilityView.split("");
     data.occupied = intervals.map((e, ix) =>
-        zoomBooths.reduce((pv, cv, ci) =>
-            pv + parseInt(data.value[ci].availabilityView[ix]), 0))
+        data.value.reduce((pv, cv) =>
+            pv + parseInt(cv.availabilityView[ix]), 0))
     data.available = intervals.map((e, ix) => data.value.length - data.occupied[ix])
     return data;
 }

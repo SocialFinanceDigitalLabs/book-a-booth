@@ -16,6 +16,8 @@ If you have a suggested improvement, please submit them in our issues log.
 
 ## Join in the coding
 
+![Build and Deploy](https://github.com/SocialFinanceDigitalLabs/book-a-booth/actions/workflows/deploy.yaml/badge.svg)
+
 This project was bootstrapped with [Create React App][create-react-app] which is 
 a simple way of getting started with React. It's a great way to quickly get started
 if you want to play around in a blank project. You can see the start in the
