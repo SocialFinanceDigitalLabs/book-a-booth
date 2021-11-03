@@ -8,7 +8,7 @@ import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfi
 import IconButton from "@mui/material/IconButton";
 import {zoomBooths} from "../../utils/CalendarDataUtil";
 
-const CellAvailable = ({day, bookClick}) => {
+const CellAvailable = ({day, bookClick, sx}) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -33,7 +33,7 @@ const CellAvailable = ({day, bookClick}) => {
         Icon = SentimentVerySatisfiedIcon;
     }
     return (
-        <TableCell sx={{backgroundColor}} align="center">
+        <TableCell sx={{...sx, backgroundColor}} align="center">
             <IconButton
                 id={`menu-button-${day.timeslot}`}
                 aria-controls={`menu-${day.timeslot}`}

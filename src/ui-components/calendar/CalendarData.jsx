@@ -16,10 +16,11 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
     const {dates, boothData, calendarData} = calendarService;
     const calendarView = useMemo(() => {
         if (dates && dates.datesIndexes) {
+            const daysOfWeek = dates.dates.map(d => dayjs.unix(d.noon).day());
             return dates.datesIndexes[0].map(timeslotIndex => {
                 return {
                     time: dates.intervals[timeslotIndex],
-                    days: dates.datesIndexes.map(dateIndex => {
+                    days: dates.datesIndexes.map((dateIndex, dayIndex) => {
                         const timeslot = dateIndex[timeslotIndex];
                         return {
                             timeslot,
@@ -27,6 +28,8 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
                             end: dates.intervals[timeslot] + dates.interval,
                             available: boothData ? boothData.available[timeslot] : -1,
                             event: calendarData ? calendarData.filter(e => e.id === calendarData.intervals[timeslot]) : [],
+                            weekSlot: dayIndex,
+                            dayOfWeek: daysOfWeek[dayIndex],
                         }
                     })
                 };
@@ -35,7 +38,6 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
             return [];
         }
     }, [dates, boothData, calendarData])
-
     return (
         <TableContainer component={Paper}>
             <Table sx={{}} size="small">
@@ -76,12 +78,16 @@ const CalendarData = ({calendarService, bookClick, deleteEventClick}) => {
 export default CalendarData;
 
 const CalendarCell = ({day, bookClick, deleteEventClick}) => {
+    const sx = {};
+    if (day.dayOfWeek === 1 && day.weekSlot > 0) {
+        sx.borderLeft = '6px solid #eee'
+    }
     if (day.end < Date.now() / 1000) {
-        return <TableCell sx={{backgroundColor: blueGrey[100]}} />
+        return <TableCell sx={{...sx, backgroundColor: blueGrey[100]}} />
     } else if (day.event && day.event.length > 0) {
-        return <CellBooked day={day} deleteEventClick={deleteEventClick} />
+        return <CellBooked sx={sx} day={day} deleteEventClick={deleteEventClick} />
     } else {
-        return <CellAvailable day={day} bookClick={bookClick}/>
+        return <CellAvailable sx={sx} day={day} bookClick={bookClick}/>
     }
 }
 

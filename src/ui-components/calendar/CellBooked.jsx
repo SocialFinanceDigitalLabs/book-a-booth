@@ -5,7 +5,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import {blue} from "@mui/material/colors";
 
-const CellBooked = ({day, deleteEventClick}) => {
+const CellBooked = ({day, deleteEventClick, sx}) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -19,7 +19,7 @@ const CellBooked = ({day, deleteEventClick}) => {
         deleteEventClick(day.event[0].id)
     };
     return (
-        <TableCell align="center" sx={{backgroundColor: blue[100]}}>
+        <TableCell align="center" sx={{...sx, backgroundColor: blue[100]}}>
             <Button
                 id={`menu-button-${day.timeslot}`}
                 aria-controls={`menu-${day.timeslot}`}
