@@ -83,4 +83,4 @@ coding!
 [git-tutorial]: https://www.computerhope.com/issues/ch001927.htm
 
 [gh-first-light]: https://github.com/SocialFinanceDigitalLabs/book-a-booth/tree/cc4e491da1237a12e022090da69485c74daafb4e
-[gh-msal]: https://github.com/SocialFinanceDigitalLabs/book-a-booth/commit/b1cac92f519633124b0977972bd7c67b1cae067f
+[gh-msal]: https://github.com/SocialFinanceDigitalLabs/book-a-booth/tree/b1cac92f519633124b0977972bd7c67b1cae067f
