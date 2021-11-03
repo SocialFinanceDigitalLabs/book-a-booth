@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {
+    calendarTimeZone,
     enrichCalendarData,
     findBooths,
     getDatePeriod,
@@ -71,24 +72,24 @@ test('Test day start/end', () => {
     const {dates, startTime, endTime} = getDatePeriod("2021-07-05")
     expect(dates[0].startTime).toEqual(startTime)
     expect(dates[0].endTime).toEqual(endTime)
-    expect(dayjs.unix(startTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-07-05 08:00:00+01:00")
-    expect(dayjs.unix(endTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-07-05 19:00:00+01:00")
+    expect(dayjs.unix(startTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-07-05 08:00:00+01:00")
+    expect(dayjs.unix(endTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-07-05 19:00:00+01:00")
 });
 
 test('Test day start GMT/end BST', () => {
     const {dates, startTime, endTime} = getDatePeriod("2021-03-25", 5)
-    expect(dayjs.unix(startTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-03-25 08:00:00+00:00")
-    expect(dayjs.unix(endTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-03-31 19:00:00+01:00")
+    expect(dayjs.unix(startTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-03-25 08:00:00+00:00")
+    expect(dayjs.unix(endTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-03-31 19:00:00+01:00")
 
-    expect(dates.map(d => dayjs.unix(d.noon).format("YYMMDDHHmm")))
+    expect(dates.map(d => dayjs.unix(d.noon).tz(calendarTimeZone).format("YYMMDDHHmm")))
         .toEqual(["2103251200", "2103261200", "2103291200", "2103301200", "2103311200"])
     expect((dates[2].noon - dates[1].noon) / 3600).toEqual(24+24+24-1)
 });
 
 test('Test day start BST/end GMT', () => {
     const {dates, startTime, endTime} = getDatePeriod("2021-10-29", 2)
-    expect(dayjs.unix(startTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-10-29 08:00:00+01:00")
-    expect(dayjs.unix(endTime).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-11-01 19:00:00+00:00")
+    expect(dayjs.unix(startTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-10-29 08:00:00+01:00")
+    expect(dayjs.unix(endTime).tz(calendarTimeZone).format("YYYY-MM-DD HH:mm:ssZ")).toEqual("2021-11-01 19:00:00+00:00")
     expect((dates[1].noon - dates[0].noon) / 3600).toEqual(24+24+24+1)
 });
 
