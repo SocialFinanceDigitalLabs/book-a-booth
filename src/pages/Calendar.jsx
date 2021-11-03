@@ -77,7 +77,7 @@ const CalendarContent = () => {
         <Grid item xs={12} md={10} lg={8}>
             <Grid container className={classes.pageContainer}>
                 <Grid item xs={10}>
-                    <InstantBook bookClick={bookClick}/>
+                    <InstantBook calendarService={calendarService} bookClick={bookClick}/>
                 </Grid>
                 <Grid item xs={2} sx={{display: 'flex', justifyContent: 'right'}}>
                     <IconButton id="btn-prev" onClick={navigate}><ArrowBackIcon /></IconButton>

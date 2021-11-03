@@ -3,9 +3,13 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import {Menu} from "@mui/material";
 
-const InstantBook = ({bookClick}) => {
+const InstantBook = ({bookClick, calendarService}) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+
+    const currentInterval = Math.floor((Date.now()/1000 - calendarService.dates.startTime) / calendarService.dates.interval);
+    const availableNow = calendarService.boothData?.available ? calendarService.boothData.available[currentInterval] : -1;
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -19,7 +23,9 @@ const InstantBook = ({bookClick}) => {
     }, [bookClick])
 
     return  <>
-        <Button variant="contained" color="secondary"
+        <Button variant="contained"
+                color="secondary"
+                disabled={availableNow === undefined || availableNow < 1}
                 id={`menu-button-instant`}
                 aria-controls={`menu-instant`}
                 aria-haspopup="true"
