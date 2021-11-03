@@ -19,9 +19,9 @@ const CellAvailable = ({day, bookClick}) => {
     };
 
     const book = useCallback((duration) => {
-        bookClick(day.start, duration).then(result =>
-            setAnchorEl(null)
-        )}, [day, bookClick]);
+        setAnchorEl(null)
+        bookClick(day.start, duration)
+    }, [day, bookClick]);
 
     const backgroundColor = `rgba(76,175,80,${day.available/zoomBooths.length})`;
     let Icon;

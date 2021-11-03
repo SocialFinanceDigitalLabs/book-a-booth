@@ -14,12 +14,14 @@ import {cancelEvent, bookBooth, useCalendarService} from "../utils/CalendarServi
 import InstantBook from "../ui-components/calendar/InstantBook";
 import Grid from "@mui/material/Grid";
 import {useTheme} from "@emotion/react";
+import {useSnackbar} from "notistack";
 
 const CalendarContent = () => {
     const theme = useTheme();
     const [date] = useQueryParam('date', StringParam);
     const narrow = useMediaQuery('(max-width:750px)');
     const calendarService = useCalendarService({startDate: date, days: narrow ? 2 : 5});
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         const timeoutId = setTimeout(() => calendarService.refresh(), 15*1000);
@@ -29,19 +31,25 @@ const CalendarContent = () => {
     }, [calendarService])
 
     const bookClick = useCallback(async (startTime, duration) => {
+        enqueueSnackbar("Sending booking")
         const bookingResult = await bookBooth(startTime, duration);
+        enqueueSnackbar("Booking sent. It can take a minute or so before appearing in calendar",
+            {variant: "success"})
         setTimeout(() => calendarService.refresh(), 3000);
         setTimeout(() => calendarService.refresh(), 6000);
         setTimeout(() => calendarService.refresh(), 9000);
         return bookingResult;
-    }, [calendarService])
+    }, [calendarService, enqueueSnackbar])
 
     const deleteEventClick = useCallback(async eventId => {
+        enqueueSnackbar("Sending deletion request")
         await cancelEvent(eventId);
+        enqueueSnackbar("Deletion sent. It can take a minute or so before appearing in calendar.",
+            {variant: "success"})
         setTimeout(() => calendarService.refresh(), 2000);
         setTimeout(() => calendarService.refresh(), 4000);
         setTimeout(() => calendarService.refresh(), 6000);
-    }, [calendarService])
+    }, [calendarService, enqueueSnackbar])
 
     return (
         <Grid item xs={12} md={10} lg={8}>

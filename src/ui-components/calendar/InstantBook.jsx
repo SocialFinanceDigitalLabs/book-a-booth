@@ -1,29 +1,45 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback} from "react";
 import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import {Menu} from "@mui/material";
 
 const InstantBook = ({bookClick}) => {
-    const [open, setOpen] = useState(false);
-    const [enabled, setEnabled] = useState(true);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
     const book = useCallback(async (duration) => {
-        setEnabled(false);
+        setAnchorEl(null);
         await bookClick(Math.floor(Date.now() / 1000), duration)
-        setOpen(false);
-        setEnabled(true);
     }, [bookClick])
 
     return  <>
-        {open &&
-            <div>
-            <Button disabled={!enabled} variant="outlined" color="secondary" onClick={() => setOpen(false)}>Dismiss</Button>
-            <Button disabled={!enabled} variant="outlined" onClick={() => book(30)}>30 min</Button>
-            <Button disabled={!enabled} variant="outlined" onClick={() => book(60)}>60 min</Button>
-            <Button disabled={!enabled} variant="outlined" onClick={() => book(90)}>90 min</Button>
-            <Button disabled={!enabled} variant="outlined" onClick={() => book(120)}>120 min</Button>
-            </div>
-        }
-        {!open &&
-        <Button variant="contained" color="secondary" onClick={() => setOpen(true)}>Instant Book</Button>
-        }
+        <Button variant="contained" color="secondary"
+                id={`menu-button-instant`}
+                aria-controls={`menu-instant`}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
+        >Instant Book</Button>
+        <Menu
+            id={`menu-instant`}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+                'aria-labelledby': `menu-button-instant`,
+            }}
+        >
+            <MenuItem onClick={() => book(30)}>30 min</MenuItem>
+            <MenuItem onClick={() => book(60)}>60 min</MenuItem>
+            <MenuItem onClick={() => book(90)}>90 min</MenuItem>
+            <MenuItem onClick={() => book(120)}>120 min</MenuItem>
+        </Menu>
     </>
 
 }

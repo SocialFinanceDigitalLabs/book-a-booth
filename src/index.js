@@ -9,6 +9,7 @@ import { QueryParamProvider } from 'use-query-params';
 import { theme } from "./styles/theme";
 import App from './App';
 import {msalInstance} from "./utils/MSALSetup";
+import {SnackbarProvider} from "notistack";
 
 ReactDOM.render(
     <React.StrictMode>
@@ -16,7 +17,9 @@ ReactDOM.render(
         <Router>
             <ThemeProvider theme={theme}>
                 <QueryParamProvider ReactRouterRoute={Route}>
-                    <App pca={msalInstance} />
+                    <SnackbarProvider maxSnack={3}>
+                        <App pca={msalInstance} />
+                    </SnackbarProvider>
                 </QueryParamProvider>
             </ThemeProvider>
         </Router>
