@@ -147,10 +147,11 @@ export const transformBoothData = (boothData) => {
     const data = {
         ...boothData,
     };
+    console.log(data)
     const intervals = data.value[0].availabilityView.split("");
     data.occupied = intervals.map((e, ix) =>
-        zoomBooths.reduce((pv, cv, ci) =>
-            pv + parseInt(data.value[ci].availabilityView[ix]), 0))
+        data.value.reduce((pv, cv) =>
+            pv + parseInt(cv.availabilityView[ix]), 0))
     data.available = intervals.map((e, ix) => data.value.length - data.occupied[ix])
     return data;
 }
