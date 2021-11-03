@@ -9,6 +9,8 @@ import { CustomNavigationClient } from "./utils/NavigationClient";
 import { PageLayout } from "./ui-components/PageLayout";
 import { Logout } from "./pages/Logout";
 import {Calendar} from "./pages/Calendar";
+import GoSquared from "./utils/GoSquared";
+import React from "react";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -18,29 +20,24 @@ function App({ pca }) {
 
   return (
     <MsalProvider instance={pca}>
-      <PageLayout>
+        <GoSquared />
+        <PageLayout>
         <Grid container justifyContent="center">
-          <Pages />
+            <Switch>
+                <Route path="/logout">
+                    <Logout />
+                </Route>
+                <Route path="/date/:date">
+                    <Calendar />
+                </Route>
+                <Route path="/">
+                    <Calendar />
+                </Route>
+            </Switch>
         </Grid>
       </PageLayout>
     </MsalProvider>
   );
-}
-
-function Pages() {
-  return (
-    <Switch>
-      <Route path="/logout">
-          <Logout />
-      </Route>
-      <Route path="/date/:date">
-          <Calendar />
-      </Route>
-      <Route path="/">
-          <Calendar />
-      </Route>
-    </Switch>
-  )
 }
 
 export default App;
