@@ -6,7 +6,8 @@ import {
     interval,
     timeFormat,
     timeFormatNoTz, transformBoothData,
-    zoomBooths
+    zoomBooths,
+    gapBefore
 } from "./CalendarDataUtil";
 import dayjs from "dayjs";
 import {_gs} from "./analytics/GoSquared";
@@ -96,21 +97,20 @@ export const bookBooth = async (start, duration) => {
     const queryBody = {
         schedules: zoomBooths,
         startTime: {
-            dateTime: startTime.format(timeFormatNoTz),
+            dateTime: startTime.subtract(gapBefore, 'minutes').format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
         endTime: {
             dateTime: endTime.format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
-        availabilityViewInterval: duration
+        availabilityViewInterval: duration + gapBefore
     }
 
     const boothResponse = await callMsGraph("/me/calendar/getSchedule",
         {method: "POST", headers, body: JSON.stringify(queryBody)});
     const boothData = await boothResponse.json();
     const availableBooths = boothData.value.filter(e => e.availabilityView === "0");
-
     if (availableBooths.length === 0) {
         return {error: "nobooth"};
     }

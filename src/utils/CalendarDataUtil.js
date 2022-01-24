@@ -6,9 +6,10 @@ export const timeFormat = "YYYY-MM-DDTHH:mmZ";
 export const timeFormatNoTz = "YYYY-MM-DDTHH:mm";
 
 export const calendarTimeZone = "Europe/London";
-export const zoomBooths = [1, 2, 3, 4, 5, 6].map(n => `zoombooth${n}@socialfinance.org.uk`);
+export const zoomBooths = [1, 2, 3, 4, 5, 6, 7, 8].map(n => `zoombooth${n}@socialfinance.org.uk`);
 export const interval = 30*60; // in seconds
 export const scheduleStart = 8, scheduleEnd = 19;
+export const gapBefore = 25;
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
