@@ -101,10 +101,10 @@ export const bookBooth = async (start, duration) => {
             timeZone: calendarTimeZone,
         },
         endTime: {
-            dateTime: endTime.format(timeFormatNoTz),
+            dateTime: endTime.subtract(gapBefore, 'minutes').format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
-        availabilityViewInterval: duration + gapBefore
+        availabilityViewInterval: duration + 2*gapBefore
     }
 
     const boothResponse = await callMsGraph("/me/calendar/getSchedule",
