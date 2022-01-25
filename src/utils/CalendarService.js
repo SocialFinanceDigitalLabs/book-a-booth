@@ -101,7 +101,7 @@ export const bookBooth = async (start, duration) => {
             timeZone: calendarTimeZone,
         },
         endTime: {
-            dateTime: endTime.subtract(gapBefore, 'minutes').format(timeFormatNoTz),
+            dateTime: endTime.add(gapBefore, 'minutes').format(timeFormatNoTz),
             timeZone: calendarTimeZone,
         },
         availabilityViewInterval: duration + 2*gapBefore
@@ -110,6 +110,7 @@ export const bookBooth = async (start, duration) => {
     const boothResponse = await callMsGraph("/me/calendar/getSchedule",
         {method: "POST", headers, body: JSON.stringify(queryBody)});
     const boothData = await boothResponse.json();
+    console.log("BOOTH DATA", boothData)
     const availableBooths = boothData.value.filter(e => e.availabilityView === "0");
     if (availableBooths.length === 0) {
         return {error: "nobooth"};
