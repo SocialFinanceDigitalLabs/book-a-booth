@@ -110,7 +110,6 @@ export const bookBooth = async (start, duration) => {
     const boothResponse = await callMsGraph("/me/calendar/getSchedule",
         {method: "POST", headers, body: JSON.stringify(queryBody)});
     const boothData = await boothResponse.json();
-    console.log("BOOTH DATA", boothData)
     const availableBooths = boothData.value.filter(e => e.availabilityView === "0");
     if (availableBooths.length === 0) {
         return {error: "nobooth"};
