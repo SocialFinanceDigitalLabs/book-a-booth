@@ -90,7 +90,7 @@ const loadCalendarData = async dates => {
 };
 
 export const bookBooth = async (start, duration) => {
-    _gs('event', 'Book', {duration});
+    console.log("BOOK", duration)
     const startTime =  dayjs.unix(start).tz(calendarTimeZone);
     const endTime = startTime.add(duration, "minutes");
     const headers = {"Content-Type": "application/json"};
@@ -122,7 +122,7 @@ export const bookBooth = async (start, duration) => {
 
     const body = {
         subject: `Booth ${boothNumber}`,
-        start: {dateTime: startTime.format(timeFormat), timeZone: calendarTimeZone},
+        start: {dateTime: startTime.add(0, "minutes").format(timeFormat), timeZone: calendarTimeZone},
         end: {dateTime: startTime.add(duration, "minutes").format(timeFormat), timeZone: calendarTimeZone},
         attendees: [{emailAddress: {address: selectedBooth.scheduleId}}]
     }
