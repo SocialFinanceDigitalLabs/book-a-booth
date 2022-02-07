@@ -128,6 +128,9 @@ export const bookBooth = async (start, duration) => {
     }
     const bookingResult = await callMsGraph("/me/calendar/events",
         {method: "POST", headers, body: JSON.stringify(body)});
+    if (!bookingResult.ok) {
+        return {error: "servererror", details: await bookingResult.json()}
+    }
     const bookingData = await bookingResult.json();
     return {boothId, boothName, boothNumber, bookingData}
 }
@@ -135,5 +138,10 @@ export const bookBooth = async (start, duration) => {
 export const cancelEvent = async eventId => {
     _gs('event', 'Cancel', {});
     const url = `/me/calendar/events/${eventId}`;
-    return await callMsGraph(url, {method: "DELETE"});
+    const result = await callMsGraph(url, {method: "DELETE"});
+    if (result.ok) {
+        return result
+    } else {
+        return {error: "servererror", details: await result.json()}
+    }
 }
