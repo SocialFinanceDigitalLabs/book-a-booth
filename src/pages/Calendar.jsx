@@ -39,15 +39,15 @@ const CalendarContent = () => {
 
     const bookClick = useCallback(async (startTime, duration) => {
         enqueueSnackbar("Sending booking")
-        const bookingResult = await bookBooth(startTime, duration);
-        if (bookingResult.error) {
-            enqueueSnackbar(`Something went wrong: ${bookingResult.error}`,
-                {variant: "error"})
-            return bookingResult;
-        } else {
-            enqueueSnackbar("Booking sent. It can take a minute or so before appearing in calendar",
-                {variant: "success"})
+        let bookingResult;
+        try {
+            bookingResult = await bookBooth(startTime, duration);
+        } catch (error) {
+            enqueueSnackbar(`Something went wrong: ${error.message}`,{variant: "error"})
+            return;
         }
+        enqueueSnackbar("Booking sent. It can take a minute or so before appearing in calendar",
+            {variant: "success"})
         setTimeout(() => calendarService.refresh(), 3000);
         setTimeout(() => calendarService.refresh(), 6000);
         setTimeout(() => calendarService.refresh(), 9000);
@@ -56,14 +56,14 @@ const CalendarContent = () => {
 
     const deleteEventClick = useCallback(async eventId => {
         enqueueSnackbar("Sending deletion request")
-        const cancelResult = await cancelEvent(eventId);
-        if (cancelResult.error) {
-            enqueueSnackbar(`Something went wrong: ${cancelResult.error}`,
+        try {
+            await cancelEvent(eventId);
+        } catch (error) {
+            enqueueSnackbar(`Something went wrong: ${error.message}`,
                 {variant: "error"})
-        } else {
-            enqueueSnackbar("Deletion sent. It can take a minute or so before appearing in calendar.",
-                {variant: "success"})
         }
+        enqueueSnackbar("Deletion sent. It can take a minute or so before appearing in calendar.",
+            {variant: "success"})
         setTimeout(() => calendarService.refresh(), 2000);
         setTimeout(() => calendarService.refresh(), 4000);
         setTimeout(() => calendarService.refresh(), 6000);
