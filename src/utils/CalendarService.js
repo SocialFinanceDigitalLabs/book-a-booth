@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
+import * as Sentry from "@sentry/react";
 import {callMsGraph, callMsGraphIter} from "./MsGraphApiCall";
 import {
     calendarTimeZone, enrichCalendarData, findBooths,
@@ -12,6 +13,30 @@ import {
 import dayjs from "dayjs";
 import {_gs} from "./analytics/GoSquared";
 
+function ResponseError(...args) {
+    const instance = Reflect.construct(Error, args);
+    Reflect.setPrototypeOf(instance, Reflect.getPrototypeOf(this));
+    args[1].text().then(message => {
+        instance.message += " - " + message
+        Sentry.captureException(instance, {contexts: {message}});
+    })
+    return instance;
+}
+ResponseError.prototype = Object.create(Error.prototype, {
+    constructor: {
+        value: Error,
+        enumerable: false,
+        writable: true,
+        configurable: true
+    }
+});
+Reflect.setPrototypeOf(ResponseError, Error);
+
+const raiseForStatus = response => {
+    if (!response.ok) {
+        throw new ResponseError(`Request return non-success error code ${response.status} - ${response.statusText}`, response);
+    }
+}
 
 export const useCalendarService = ({startDate, days}) => {
     const [dates, setDates] = useState({dates: []});
@@ -75,6 +100,7 @@ const loadBoothData = async (dates) => {
         availabilityViewInterval: Math.round(interval / 60)
     }
     const boothData = await callMsGraph(url, {method: "POST", headers, body: JSON.stringify(body)});
+    raiseForStatus(boothData)
     return transformBoothData(await boothData.json(), dates);
 };
 
@@ -90,7 +116,6 @@ const loadCalendarData = async dates => {
 };
 
 export const bookBooth = async (start, duration) => {
-    _gs('event', 'Book', {duration});
     const startTime =  dayjs.unix(start).tz(calendarTimeZone);
     const endTime = startTime.add(duration, "minutes");
     const headers = {"Content-Type": "application/json"};
@@ -109,6 +134,7 @@ export const bookBooth = async (start, duration) => {
 
     const boothResponse = await callMsGraph("/me/calendar/getSchedule",
         {method: "POST", headers, body: JSON.stringify(queryBody)});
+    raiseForStatus(boothResponse)
     const boothData = await boothResponse.json();
     const availableBooths = boothData.value.filter(e => e.availabilityView === "0");
     if (availableBooths.length === 0) {
@@ -122,12 +148,13 @@ export const bookBooth = async (start, duration) => {
 
     const body = {
         subject: `Booth ${boothNumber}`,
-        start: {dateTime: startTime.format(timeFormat), timeZone: calendarTimeZone},
+        start: {dateTime: startTime.add(0, "minutes").format(timeFormat), timeZone: calendarTimeZone},
         end: {dateTime: startTime.add(duration, "minutes").format(timeFormat), timeZone: calendarTimeZone},
         attendees: [{emailAddress: {address: selectedBooth.scheduleId}}]
     }
     const bookingResult = await callMsGraph("/me/calendar/events",
         {method: "POST", headers, body: JSON.stringify(body)});
+    raiseForStatus(bookingResult)
     const bookingData = await bookingResult.json();
     return {boothId, boothName, boothNumber, bookingData}
 }
@@ -135,5 +162,7 @@ export const bookBooth = async (start, duration) => {
 export const cancelEvent = async eventId => {
     _gs('event', 'Cancel', {});
     const url = `/me/calendar/events/${eventId}`;
-    return await callMsGraph(url, {method: "DELETE"});
+    const result = await callMsGraph(url, {method: "DELETE"});
+    raiseForStatus(result)
+    return result
 }

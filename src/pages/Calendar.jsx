@@ -39,7 +39,13 @@ const CalendarContent = () => {
 
     const bookClick = useCallback(async (startTime, duration) => {
         enqueueSnackbar("Sending booking")
-        const bookingResult = await bookBooth(startTime, duration);
+        let bookingResult;
+        try {
+            bookingResult = await bookBooth(startTime, duration);
+        } catch (error) {
+            enqueueSnackbar(`Something went wrong: ${error.message}`,{variant: "error"})
+            return;
+        }
         enqueueSnackbar("Booking sent. It can take a minute or so before appearing in calendar",
             {variant: "success"})
         setTimeout(() => calendarService.refresh(), 3000);
@@ -50,7 +56,12 @@ const CalendarContent = () => {
 
     const deleteEventClick = useCallback(async eventId => {
         enqueueSnackbar("Sending deletion request")
-        await cancelEvent(eventId);
+        try {
+            await cancelEvent(eventId);
+        } catch (error) {
+            enqueueSnackbar(`Something went wrong: ${error.message}`,
+                {variant: "error"})
+        }
         enqueueSnackbar("Deletion sent. It can take a minute or so before appearing in calendar.",
             {variant: "success"})
         setTimeout(() => calendarService.refresh(), 2000);
